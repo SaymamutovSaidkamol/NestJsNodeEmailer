@@ -8,26 +8,26 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class RefreshGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
   canActivate(context: ExecutionContext): boolean {
     let request: Request = context.switchToHttp().getRequest();
 
-    let token = request.headers.authorization?.split(' ')[1];
+    let { token } = request.body;
 
     if (!token) {
+        console.log(token);
+        
       throw new BadRequestException('Token Not Found');
     }
 
     try {
-      let data = this.jwtService.verify(token, { secret: 'acess_key' });
+      let data = this.jwtService.verify(token, {secret: "refresh_key"});
 
       request['user'] = data;
       return true;
     } catch (error) {
-      console.log(error);
-      
-      throw new BadRequestException('Token Not Found', error.message);
+      throw new BadRequestException();
     }
   }
 }

@@ -33,7 +33,7 @@ export class UsersService {
         'New Otp',
         `new Otp:  ${otp}`,
       );
-      return {message: "New OTP", otp};
+      return { message: 'New OTP', otp };
     }
     let hashPass = bcrypt.hashSync(data.password, 7);
 
@@ -69,11 +69,20 @@ export class UsersService {
       throw new NotFoundException('Wrong Password');
     }
 
-    let token = this.jwtService.sign({
+    let token = this.generateAccessToken({
       id: checkUser.id,
       name: checkUser.fullName,
       Ip: data.IP,
       role: checkUser.role,
+      status: checkUser.status,
+    });
+
+    let refreshToken = this.generateRefreshToken({
+      id: checkUser.id,
+      name: checkUser.fullName,
+      Ip: data.IP,
+      role: checkUser.role,
+      status: checkUser.status,
     });
 
     let IpCheck = await this.prisma.iP.findFirst({
@@ -101,7 +110,11 @@ export class UsersService {
 
     let verifyToken = this.jwtService.verify(token);
 
-    return { token, verifyToken };
+    return {
+      acces_token: token,
+      refresh_token: refreshToken,
+      OTP: verifyToken,
+    };
   }
 
   async getMe(req: Request) {
@@ -193,4 +206,29 @@ export class UsersService {
 
     return { message: 'Your account has been activated.' };
   }
+
+  async refresh_token(req: Request) {
+    let { id, name, Ip, role, status } = req['user'];
+    console.log(req['user']);
+
+    return {
+      message: 'New Access Token',
+      access_token: this.generateRefreshToken({ id, name, Ip, role, status }), // generete -> generate
+    };
+  }
+
+  generateAccessToken(payload: any) {
+    return this.jwtService.sign(payload, {
+      secret: 'access_key',
+      expiresIn: '20s', // 15 daqiqa
+    });
+  }
+  
+  generateRefreshToken(payload: any) {
+    return this.jwtService.sign(payload, {
+      secret: 'refresh_key',
+      expiresIn: '59s', // 7 kun
+    });
+  }
+  
 }

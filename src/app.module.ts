@@ -9,7 +9,15 @@ import { UploadModule } from './upload/upload.module';
 import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [PrismaModule, CategoryModule, ProductModule, UsersModule, UploadModule, MailModule],
+  imports: [
+    PrismaModule,
+    CategoryModule,
+    ProductModule,
+    UsersModule,
+    UploadModule,
+    MailModule,
+    UsersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

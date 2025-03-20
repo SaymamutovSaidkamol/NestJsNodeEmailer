@@ -12,10 +12,11 @@ import {
 import { UsersService } from './users.service';
 import { RegisterDto, LoginDto, VerifyDto } from './dto/create-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { Request, RequestHandler } from 'express';
+import { Request } from 'express';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/Roles/role.enum';
 import { RoleGuard } from 'src/auth/role.guard';
+import { RefreshGuard } from 'src/auth/refresh.guard';
 
 @Controller('users')
 export class UsersController {
@@ -68,5 +69,11 @@ export class UsersController {
   @Delete('session/:id')
   deleteSession(@Param('id') id:string, @Req() req: Request){
     return this.usersService.delSession(id, req)
+  }
+
+  @UseGuards(RefreshGuard)
+  @Get('/refresh_token')
+  refreshToken(@Req() req: Request){
+    return this.usersService.refresh_token(req);
   }
 }
